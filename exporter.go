@@ -47,7 +47,6 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 
 
 		rows, errRow := gormDb.Raw(query).Rows() // (*sql.Rows, error)
-		defer rows.Close()
 
 		if errRow != nil {
 			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", err)
@@ -79,6 +78,8 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		}
 
 		haveRecord = len(documents) > 0 // До тех пор пока есть данные
+
+		rows.Close()
 
 		if !haveRecord {
 			break

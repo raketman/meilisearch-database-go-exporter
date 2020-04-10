@@ -20,4 +20,4 @@ config.json.dist -> config.json
 ```
 
 Запуск
-go run main.go config.go work_control.go  exporter.go 
+go run main.go config.go  exporter.go 

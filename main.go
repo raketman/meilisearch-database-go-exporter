@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/meilisearch/meilisearch-go"
 	"log"
+	"sync"
 )
 
 func main() {
@@ -12,16 +13,14 @@ func main() {
 
 	config.Read("config.json")
 
-	log.Println("Config:", config)
-
 	var client = meilisearch.NewClient(meilisearch.Config{
 		Host: config.Host,
 		APIKey: config.Key,
 	})
 
-	log.Println(client)
 
-	baseGroup := CreateWorkGroup(len(config.Works))
+	var baseGroup sync.WaitGroup
+	baseGroup.Add(len(config.Works))
 
 	// Для каждого запрос создадим индекс primary
 	for _, itemWork := range config.Works {
@@ -39,14 +38,15 @@ func main() {
 				}
 			}
 
-			threadGroup := CreateWorkGroup(len(config.Works))
+			var threadGroup sync.WaitGroup
+			threadGroup.Add(work.Thread)
 
 			for thread := 0; thread < work.Thread; thread++ {
 				go func(thread int) {
 					exporter := Exporter{
 						Thread: thread,
 					}
-					// TODO: Сделать в виде интерфейса, чтобы любой exporter могу это сделать
+
 					exporter.Process(client, work)
 
 					threadGroup.Done()
@@ -60,4 +60,6 @@ func main() {
 	}
 
 	baseGroup.Wait()
+
+	log.Println("READY")
 }

@@ -80,6 +80,10 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 
 		haveRecord = len(documents) > 0 // До тех пор пока есть данные
 
+		if !haveRecord {
+			break
+		}
+
 		updateRes, err := client.Documents(work.Index).AddOrReplace(documents) // => { "updateId": 0 }
 
 		if err != nil {
@@ -87,10 +91,6 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 			continue
 		}
 		log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," UPDATES:",  updateRes.UpdateID)
-
-		if !haveRecord {
-			break
-		}
 
 		time.Sleep(time.Duration(work.Sleep) * time.Millisecond)
 

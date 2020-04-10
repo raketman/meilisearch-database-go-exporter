@@ -21,10 +21,16 @@ type Exporter struct {
 func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 
 	// TODO: сделать split driver
-	gormDb, _ := gorm.Open(
+	gormDb, err := gorm.Open(
 		work.DB_DRIVER,
 		work.DB_DSN,
 	)
+
+	if err != nil {
+		log.Fatal("THREAD:", exporter.Thread, "ERROR", err)
+	}
+
+
 	defer gormDb.Close()
 
 	haveRecord := true
@@ -37,14 +43,16 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		query = strings.Replace(query, ":limit", fmt.Sprintf("%v", work.Limit), -1)
 		query = strings.Replace(query, ":offset", fmt.Sprintf("%v", offset), -1)
 
-		// Увеличиваем, что выбрать всю базу
-		offset = offset + increment
 		//log.Println("QUERY:", exporter.Thread, query)
 
 
-		rows, _ := gormDb.Raw(query).Rows() // (*sql.Rows, error)
+		rows, errRow := gormDb.Raw(query).Rows() // (*sql.Rows, error)
 		defer rows.Close()
 
+		if errRow != nil {
+			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", err)
+			continue
+		}
 
 		columns, _ := rows.Columns()
 		colNum := len(columns)
@@ -73,16 +81,21 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		haveRecord = len(documents) > 0 // До тех пор пока есть данные
 
 		updateRes, err := client.Documents(work.Index).AddOrReplace(documents) // => { "updateId": 0 }
-		log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," UPDATES:",  updateRes.UpdateID)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," MEILIERROR:", err)
+			continue
 		}
+		log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," UPDATES:",  updateRes.UpdateID)
+
 		if !haveRecord {
 			break
 		}
 
 		time.Sleep(time.Duration(work.Sleep) * time.Millisecond)
+
+		// Увеличиваем, что выбрать всю базу
+		offset = offset + increment
 	}
 
 

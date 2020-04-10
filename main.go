@@ -21,12 +21,7 @@ func main() {
 
 	log.Println(client)
 
-	// Создадим канал, для обмена информацией
-	works := make(chan int, len(config.Works))
-	done := make(chan bool)
-
-	// Запустим контроль работ
-	WorkControl(works, done, "BASE WORKS", len(config.Works))
+	baseGroup := CreateWorkGroup(len(config.Works))
 
 	// Для каждого запрос создадим индекс primary
 	for _, itemWork := range config.Works {
@@ -44,10 +39,7 @@ func main() {
 				}
 			}
 
-			threads := make(chan int, len(config.Works))
-			threadDone := make(chan bool)
-
-			WorkControl(threads, threadDone, "THREAD WORK " + work.Index, work.Thread)
+			threadGroup := CreateWorkGroup(len(config.Works))
 
 			for thread := 0; thread < work.Thread; thread++ {
 				go func(thread int) {
@@ -57,15 +49,15 @@ func main() {
 					// TODO: Сделать в виде интерфейса, чтобы любой exporter могу это сделать
 					exporter.Process(client, work)
 
-					threads <- 1
+					threadGroup.Done()
 				}(thread)
 			}
 
-			<- threadDone
-			// Отправим, что заверешнили
-			works <- 1
+			threadGroup.Wait()
+			// Отправим, что завершили
+			baseGroup.Done()
 		} (itemWork)
 	}
 
-	<- done
+	baseGroup.Wait()
 }

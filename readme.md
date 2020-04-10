@@ -14,6 +14,16 @@ config.json.dist -> config.json
           "sleep": 1000, // время ожидания между пачками для разгрузки  системы
           "thread": 10, // количество потоков
           "limit": 1000 // размер пачки
+        },
+        {
+          "index": "my_second_index",
+          "primary": "aoguid",
+          "db_driver": "mysql",
+          "db_dsn": "user:pass@tcp(host:3306)/db", // Пример настройки для mysql
+          "query": "SELECT aoguid, parentguid, offname FROM address_list ORDER BY aoguid ASC LIMIT :offset, :limit",
+          "sleep": 1000,
+          "thread": 10,
+          "limit": 1000
         }
     ]
 }

@@ -49,7 +49,7 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		rows, errRow := gormDb.Raw(query).Rows() // (*sql.Rows, error)
 
 		if errRow != nil {
-			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", err)
+			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", errRow)
 			continue
 		}
 

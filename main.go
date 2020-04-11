@@ -38,6 +38,25 @@ func main() {
 				}
 			}
 
+			if len (work.DisplayedAttributes) > 0 {
+
+
+				_, err := client.Settings(work.Index).UpdateDisplayedAttributes(work.DisplayedAttributes)
+
+				if err != nil {
+					log.Fatal("Set DisplayedAttributes: ", err)
+				}
+			}
+			if len (work.SearchableAttributes) > 0 {
+
+				_, err := client.Settings(work.Index).UpdateSearchableAttributes(work.SearchableAttributes)
+
+				if err != nil {
+					log.Fatal("Set SearchableAttributes: ", err)
+				}
+			}
+
+
 			var threadGroup sync.WaitGroup
 			threadGroup.Add(work.Thread)
 

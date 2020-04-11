@@ -15,6 +15,13 @@
     {
       "index": "my_second_index",
       "primary": "aoguid",
+      "searchable_attributes": [
+        "parentguid",
+        "housenum",
+        "buildnum",
+        "structnum"
+      ],
+      "displayed_attributes": [],
       "db_driver": "mysql",
       "db_dsn": "user:pass@tcp(host:3306)/db",
       "query": "SELECT aoguid, parentguid, offname FROM address_list ORDER BY aoguid ASC LIMIT :offset, :limit",

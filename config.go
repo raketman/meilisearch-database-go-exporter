@@ -14,6 +14,7 @@ type Work struct {
 	Sleep int `json:"sleep"`
 	Thread int `json:"thread"`
 	Limit int `json:"limit"`
+	Offset int `json:"offset"`
 	DisplayedAttributes []string `json:"displayed_attributes"`
 	SearchableAttributes []string `json:"searchable_attributes"`
 }

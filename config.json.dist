@@ -27,7 +27,8 @@
       "query": "SELECT aoguid, parentguid, offname FROM address_list ORDER BY aoguid ASC LIMIT :offset, :limit",
       "sleep": 1000,
       "thread": 10,
-      "limit": 1000
+      "limit": 1000,
+      "offset": 0
     }
   ]
 }

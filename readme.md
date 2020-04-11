@@ -20,7 +20,8 @@ config.json.dist -> config.json
           "query": "SELECT id, name, key  FROM test ORDER BY id ASC LIMIT :limit OFFSET :offset", // limit, offset позволяет организовать пачки, без них зациклится
           "sleep": 1000, // время ожидания между пачками для разгрузки  системы
           "thread": 10, // количество потоков
-          "limit": 1000 // размер пачки
+          "limit": 1000, // размер пачки
+          "offset": 0 // Стартовый оffset
         },
         {
           "index": "my_second_index",
@@ -30,7 +31,8 @@ config.json.dist -> config.json
           "query": "SELECT aoguid, parentguid, offname FROM address_list ORDER BY aoguid ASC LIMIT :offset, :limit",
           "sleep": 1000,
           "thread": 10,
-          "limit": 1000
+          "limit": 1000,
+          "offset": 0 // Стартовый оffset
         }
     ]
 }

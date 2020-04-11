@@ -34,7 +34,7 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 	defer gormDb.Close()
 
 	haveRecord := true
-	offset := exporter.Thread * work.Limit
+	offset := work.Offset + exporter.Thread * work.Limit
 	increment := work.Thread * work.Limit
 
 	for {

@@ -22,6 +22,7 @@
         "structnum"
       ],
       "displayed_attributes": [],
+      "delete_before": true,
       "db_driver": "mysql",
       "db_dsn": "user:pass@tcp(host:3306)/db",
       "query": "SELECT aoguid, parentguid, offname FROM address_list ORDER BY aoguid ASC LIMIT :offset, :limit",

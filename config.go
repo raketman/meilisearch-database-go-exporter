@@ -8,6 +8,7 @@ import (
 type Work struct {
 	Index string `json:"index""`
 	Primary string `json:"primary"`
+	DeleteBefore bool `json:"delete_before"`
 	DB_DRIVER string `json:"db_driver"`
 	DB_DSN string `json:"db_dsn"`
 	Query string `json:"query"`

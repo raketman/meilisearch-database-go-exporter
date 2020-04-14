@@ -8,6 +8,7 @@ config.json.dist -> config.json
         {
           "index": "stopp", // индекс в meili
           "primary": "id", // primary_id в индекс
+          "delete_before": true, // нужно ли удалять индекс перед созданием
           "searchable_attributes": [ 
             "parentguid",
             "housenum",

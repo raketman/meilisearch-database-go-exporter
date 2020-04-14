@@ -25,6 +25,15 @@ func main() {
 	// Для каждого запрос создадим индекс primary
 	for _, itemWork := range config.Works {
 		go func(work Work) {
+
+			if work.DeleteBefore {
+				_, deleteErr := client.Indexes().Delete(work.Index)
+
+				if deleteErr != nil {
+					log.Fatal("Delete index: ", deleteErr)
+				}
+			}
+
 			// Create an index if your index does not already exist
 			index, _ := client.Indexes().Get(work.Index)
 

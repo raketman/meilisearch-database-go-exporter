@@ -23,14 +23,14 @@ func main() {
 	baseGroup.Add(len(config.Works))
 
 	// Для каждого запрос создадим индекс primary
-	for _, itemWork := range config.Works {
-		go func(work Work) {
-
+	for keyWork, itemWork := range config.Works {
+		go func(work Work, keyWork int) {
+			log.Println("START WORK", keyWork)
 			if work.DeleteBefore {
 				_, deleteErr := client.Indexes().Delete(work.Index)
 
 				if deleteErr != nil {
-					log.Fatal("Delete index: ", deleteErr)
+					log.Fatal("Work: ", keyWork, " Delete index: ", deleteErr)
 				}
 			}
 
@@ -43,7 +43,7 @@ func main() {
 					PrimaryKey: work.Primary,
 				})
 				if err != nil {
-					log.Fatal("Create index: ", err)
+					log.Fatal("Work: ", keyWork, "Create index: ", err)
 				}
 			}
 
@@ -53,7 +53,7 @@ func main() {
 				_, err := client.Settings(work.Index).UpdateDisplayedAttributes(work.DisplayedAttributes)
 
 				if err != nil {
-					log.Fatal("Set DisplayedAttributes: ", err)
+					log.Fatal("Work: ", keyWork, "Set DisplayedAttributes: ", err)
 				}
 			}
 			if len (work.SearchableAttributes) > 0 {
@@ -61,7 +61,7 @@ func main() {
 				_, err := client.Settings(work.Index).UpdateSearchableAttributes(work.SearchableAttributes)
 
 				if err != nil {
-					log.Fatal("Set SearchableAttributes: ", err)
+					log.Fatal("Work: ", keyWork, "Set SearchableAttributes: ", err)
 				}
 			}
 
@@ -73,6 +73,7 @@ func main() {
 				go func(thread int) {
 					exporter := Exporter{
 						Thread: thread,
+						Work: keyWork,
 					}
 
 					exporter.Process(client, work)
@@ -83,8 +84,9 @@ func main() {
 
 			threadGroup.Wait()
 			// Отправим, что завершили
+			log.Println("END WORK", keyWork)
 			baseGroup.Done()
-		} (itemWork)
+		} (itemWork, keyWork)
 	}
 
 	baseGroup.Wait()

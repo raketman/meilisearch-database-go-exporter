@@ -16,6 +16,7 @@ import (
 
 type Exporter struct {
 	Thread int
+	Work int
 }
 
 func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
@@ -27,7 +28,7 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 	)
 
 	if err != nil {
-		log.Fatal("THREAD:", exporter.Thread, "ERROR", err)
+		log.Fatal("Work:", exporter.Work, "THREAD:", exporter.Thread, "ERROR", err)
 	}
 
 
@@ -49,7 +50,7 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		rows, errRow := gormDb.Raw(query).Rows() // (*sql.Rows, error)
 
 		if errRow != nil {
-			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", errRow)
+			log.Println("Work:", exporter.Work, "THREAD:", exporter.Thread, " OFFSET:", offset," ERROROW:", errRow)
 			continue
 		}
 
@@ -88,10 +89,10 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 		updateRes, err := client.Documents(work.Index).AddOrReplace(documents) // => { "updateId": 0 }
 
 		if err != nil {
-			log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," MEILIERROR:", err)
+			log.Println("Work:", exporter.Work, "THREAD:", exporter.Thread, " OFFSET:", offset," MEILIERROR:", err)
 			continue
 		}
-		log.Println("THREAD:", exporter.Thread, " OFFSET:", offset," UPDATES:",  updateRes.UpdateID)
+		log.Println("Work:", exporter.Work, "THREAD:", exporter.Thread, " OFFSET:", offset," UPDATES:",  updateRes.UpdateID)
 
 		time.Sleep(time.Duration(work.Sleep) * time.Millisecond)
 

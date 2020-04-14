@@ -72,7 +72,10 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 			for i, colName := range columns {
 				var raw_value = *(values[i].(*interface{}))
 
-				item[colName] = string(fmt.Sprintf("%s", raw_value))
+				if raw_value != nil {
+					raw_value = string(fmt.Sprintf("%s", raw_value))
+				}
+				item[colName] = raw_value
 			}
 
 			documents = append(documents, item)

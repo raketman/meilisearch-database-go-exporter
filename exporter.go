@@ -8,6 +8,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/meilisearch/meilisearch-go"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -21,7 +22,19 @@ type Exporter struct {
 
 func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 
-	// TODO: сделать split driver
+	// work.DB_DSN get from env
+	if strings.Contains(work.DB_DSN, "env:") {
+
+		work.DB_DSN = strings.Replace(work.DB_DSN, "env:","", 1)
+
+		work.DB_DSN, _ = os.LookupEnv(work.DB_DSN)
+
+		if len(work.DB_DSN) == 0 {
+			log.Fatal("Work: ", exporter.Work, " THREAD: ", exporter.Thread, " NO DB_DSN")
+		}
+
+	}
+
 	gormDb, err := gorm.Open(
 		work.DB_DRIVER,
 		work.DB_DSN,

@@ -26,17 +26,20 @@ func main() {
 	for keyWork, itemWork := range config.Works {
 		go func(work Work, keyWork int) {
 			log.Println("START WORK", keyWork)
-			if work.DeleteBefore {
+
+			// Create an index if your index does not already exist
+			index, _ := client.Indexes().Get(work.Index)
+
+			if (index != nil) && work.DeleteBefore {
 				_, deleteErr := client.Indexes().Delete(work.Index)
 
 				if deleteErr != nil {
 					log.Fatal("Work: ", keyWork, " Delete index: ", deleteErr)
 				}
+				index = nil
+
 			}
-
-			// Create an index if your index does not already exist
-			index, _ := client.Indexes().Get(work.Index)
-
+			
 			if index == nil {
 				_, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
 					UID:        work.Index,

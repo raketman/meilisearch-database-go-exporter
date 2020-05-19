@@ -22,7 +22,6 @@ type Exporter struct {
 
 func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 
-	// work.DB_DSN get from env
 	if strings.Contains(work.DB_DSN, "env:") {
 
 		work.DB_DSN = strings.Replace(work.DB_DSN, "env:","", 1)
@@ -41,7 +40,7 @@ func (exporter Exporter) Process(client *meilisearch.Client, work Work) {
 	)
 
 	if err != nil {
-		log.Fatal("Work:", exporter.Work, "THREAD:", exporter.Thread, "ERROR", err)
+		log.Fatal("Work: ", exporter.Work, " THREAD: ", exporter.Thread, " ERROR ", err)
 	}
 
 

@@ -22,52 +22,58 @@ func main() {
 	var baseGroup sync.WaitGroup
 	baseGroup.Add(len(config.Works))
 
-	// Для каждого запрос создадим индекс primary
+	// Для каждого запрос проверим в синхронном режиме индексы
+	for keyWork, work := range config.Works {
+		log.Println("PREPARE WORK", keyWork)
+
+		// Create an index if your index does not already exist
+		index, _ := client.Indexes().Get(work.Index)
+
+
+		if (index != nil) && work.DeleteBefore {
+			_, deleteErr := client.Indexes().Delete(work.Index)
+
+			if deleteErr != nil {
+				log.Fatal("Work: ", keyWork, " Delete index: ", deleteErr)
+			}
+			index = nil
+
+		}
+
+		if index == nil {
+			_, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
+				UID:        work.Index,
+				PrimaryKey: work.Primary,
+			})
+			if err != nil {
+				log.Fatal("Work: ", keyWork, "Create index: ", err)
+			}
+		}
+
+		if len (work.DisplayedAttributes) > 0 {
+
+			_, err := client.Settings(work.Index).UpdateDisplayedAttributes(work.DisplayedAttributes)
+
+			if err != nil {
+				log.Fatal("Work: ", keyWork, "Set DisplayedAttributes: ", err)
+			}
+		}
+		if len (work.SearchableAttributes) > 0 {
+
+			_, err := client.Settings(work.Index).UpdateSearchableAttributes(work.SearchableAttributes)
+
+			if err != nil {
+				log.Fatal("Work: ", keyWork, "Set SearchableAttributes: ", err)
+			}
+		}
+
+	}
+
+
+	// Для каждого запрос создадим индекс
 	for keyWork, itemWork := range config.Works {
 		go func(work Work, keyWork int) {
 			log.Println("START WORK", keyWork)
-
-			// Create an index if your index does not already exist
-			index, _ := client.Indexes().Get(work.Index)
-
-			if (index != nil) && work.DeleteBefore {
-				_, deleteErr := client.Indexes().Delete(work.Index)
-
-				if deleteErr != nil {
-					log.Fatal("Work: ", keyWork, " Delete index: ", deleteErr)
-				}
-				index = nil
-
-			}
-			
-			if index == nil {
-				_, err := client.Indexes().Create(meilisearch.CreateIndexRequest{
-					UID:        work.Index,
-					PrimaryKey: work.Primary,
-				})
-				if err != nil {
-					log.Fatal("Work: ", keyWork, "Create index: ", err)
-				}
-			}
-
-			if len (work.DisplayedAttributes) > 0 {
-
-
-				_, err := client.Settings(work.Index).UpdateDisplayedAttributes(work.DisplayedAttributes)
-
-				if err != nil {
-					log.Fatal("Work: ", keyWork, "Set DisplayedAttributes: ", err)
-				}
-			}
-			if len (work.SearchableAttributes) > 0 {
-
-				_, err := client.Settings(work.Index).UpdateSearchableAttributes(work.SearchableAttributes)
-
-				if err != nil {
-					log.Fatal("Work: ", keyWork, "Set SearchableAttributes: ", err)
-				}
-			}
-
 
 			var threadGroup sync.WaitGroup
 			threadGroup.Add(work.Thread)
